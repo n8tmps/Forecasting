@@ -1,0 +1,76 @@
+---
+title: "Forecast"
+author: "Nate Talampas"
+date: "2023-03-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(xlsx2dfs)
+library(TSstudio)
+```
+
+
+###	Import data on quarterly growth rate of REAL GDP and the one-quarter-ahead forecast
+```{r}
+# importing data
+df = read.xlsx("C:/Users/ntlmp/Desktop/Greenbook.xlsx")
+head(df)
+```
+```{r}
+#change Actual.RGDP.Quarterly.Growth.(in.%) to Actual_GDP
+names(df)[names(df) == "Actual.RGDP.Quarterly.Growth.(in.%)"] <- "actual_GDP"
+
+#change "Greenbook.RGDP.Quarterly.Growth.Forecast.(in.%)" to Forecast_GDP
+names(df)[names(df) == "Greenbook.RGDP.Quarterly.Growth.Forecast.(in.%)"
+] <- "forecast_GDP"
+```
+
+
+###	Compute 1-quarter-ahead forecast errors
+```{r}
+df$forecast_error = df$actual_GDP - df$forecast_GDP
+head(df)
+```
+
+###	Plot time series of realized values, forecasts, and forecast errors
+```{r}
+actual_gdp_ts = ts(df$actual_GDP, start=c(1969,1), frequency = 4)
+print(actual_gdp_ts)
+plot(actual_gdp_ts)
+```
+```{r}
+forecast_gdp_ts = ts(df$forecast_GDP, start=c(1969,1), frequency = 4)
+print(forecast_gdp_ts)
+plot(forecast_gdp_ts)
+```
+
+```{r}
+forecast_error_ts = ts(df$forecast_error, start=c(1969,1), frequency = 4)
+print(forecast_error_ts)
+plot(forecast_error_ts)
+```
+
+###	Compute descriptive statistics of the three series
+```{r}
+summary(actual_gdp_ts)
+summary(forecast_gdp_ts)
+summary(forecast_error_ts)
+```
+
+###	Compute the ACF and PACF of the realized values, forecasts, and forecast errors
+```{r}
+acf(actual_gdp_ts)
+pacf(actual_gdp_ts)
+```
+```{r}
+acf(forecast_gdp_ts)
+pacf(forecast_gdp_ts)
+```
+```{r}
+acf(forecast_error_ts)
+pacf(forecast_error_ts)
+```
+
